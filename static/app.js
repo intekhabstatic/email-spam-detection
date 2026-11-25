@@ -3,6 +3,11 @@ const messageField = document.querySelector("#message");
 const charCount = document.querySelector("#char-count");
 const submitButton = document.querySelector("#submit-button");
 const resultPanel = document.querySelector("#result");
+const emptyState = document.querySelector("#empty-state");
+const loadingState = document.querySelector("#loading-state");
+const outcome = document.querySelector("#outcome");
+const errorState = document.querySelector("#error-state");
+const verdictBadge = document.querySelector("#verdict-badge");
 
 messageField.addEventListener("input", () => {
   charCount.textContent = `${messageField.value.length.toLocaleString()} / 12,000`;
@@ -25,11 +30,9 @@ form.addEventListener("submit", async (event) => {
     return;
   }
 
+  setState("loading");
   submitButton.disabled = true;
-  submitButton.innerHTML = '<span class="spinner" aria-hidden="true"></span><span>Checking…</span>';
-  resultPanel.hidden = false;
-  resultPanel.className = "result loading";
-  resultPanel.textContent = "Analyzing message text…";
+  submitButton.innerHTML = '<span class="spinner" aria-hidden="true"></span><span>Analyzing message…</span>';
 
   try {
     const response = await fetch("/api/predict", {
@@ -39,35 +42,46 @@ form.addEventListener("submit", async (event) => {
     });
     const payload = await response.json();
     if (!response.ok) throw new Error(payload.detail || "The message could not be analyzed.");
-    showPrediction(payload);
+    showPrediction(payload, text);
   } catch (error) {
     showError(error.message || "Could not connect to the classifier. Please try again.");
   } finally {
     submitButton.disabled = false;
-    submitButton.innerHTML = '<span>Check message</span><span aria-hidden="true">→</span>';
+    submitButton.innerHTML = '<span>Analyze message</span><span class="submit-arrow" aria-hidden="true">→</span>';
   }
 });
 
-function showPrediction(prediction) {
+function setState(state) {
+  emptyState.hidden = state !== "empty";
+  loadingState.hidden = state !== "loading";
+  outcome.hidden = state !== "result";
+  errorState.hidden = state !== "error";
+}
+
+function showPrediction(prediction, text) {
   const isSpam = prediction.is_spam;
   const percent = Math.round(prediction.spam_probability * 100);
-  resultPanel.className = `result ${isSpam ? "spam" : "ham"}`;
+  resultPanel.classList.toggle("spam-result", isSpam);
+  resultPanel.classList.toggle("ham-result", !isSpam);
+  setState("result");
 
-  const icon = document.createElement("span");
-  icon.className = "result-icon";
-  icon.textContent = isSpam ? "!" : "✓";
-
-  const content = document.createElement("div");
-  const title = document.createElement("h2");
-  title.textContent = isSpam ? "This looks like spam" : "This looks like a normal message";
-  const description = document.createElement("p");
-  description.textContent = `Estimated spam probability: ${percent}%. Treat this as a clue, not a guarantee.`;
-  content.append(title, description);
-  resultPanel.replaceChildren(icon, content);
+  verdictBadge.className = `verdict-badge ${isSpam ? "spam" : "ham"}`;
+  verdictBadge.textContent = isSpam ? "Potential spam" : "Likely safe";
+  document.querySelector("#result-icon").textContent = isSpam ? "!" : "✓";
+  document.querySelector("#verdict-title").textContent = isSpam ? "This message looks suspicious" : "This message looks normal";
+  document.querySelector("#verdict-description").textContent = isSpam
+    ? "The classifier found patterns that are common in spam messages."
+    : "The classifier found few patterns associated with spam.";
+  document.querySelector("#preview-message").textContent = text;
+  document.querySelector("#preview-length").textContent = `${text.length.toLocaleString()} characters`;
+  document.querySelector("#spam-score").textContent = `${percent}%`;
+  document.querySelector("#risk-meter").style.width = `${percent}%`;
 }
 
 function showError(message) {
-  resultPanel.hidden = false;
-  resultPanel.className = "result error";
-  resultPanel.textContent = message;
+  setState("error");
+  resultPanel.classList.remove("spam-result", "ham-result");
+  verdictBadge.className = "verdict-badge neutral";
+  verdictBadge.textContent = "Needs attention";
+  errorState.textContent = message;
 }

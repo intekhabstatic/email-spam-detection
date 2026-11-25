@@ -3,46 +3,62 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#101522" />
-    <meta name="description" content="Check message text for spam with SpamSentry, a machine-learning spam detection demo." />
-    <title>SpamSentry — Message Spam Checker</title>
+    <meta name="theme-color" content="#f4f6f8" />
+    <meta name="description" content="Check a message for spam with SpamSentry's machine-learning classifier." />
+    <title>SpamSentry — Message Security</title>
     <link rel="stylesheet" href="/static/style.css" />
   </head>
   <body>
     <header class="topbar">
-      <a class="brand" href="/" aria-label="SpamSentry home"><span class="brand-mark">S</span><span>SpamSentry</span></a>
-      <a class="api-link" href="/docs" target="_blank" rel="noreferrer">API docs <span aria-hidden="true">↗</span></a>
+      <a class="brand" href="/" aria-label="SpamSentry home">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 2.7 19 5.5v5.8c0 4.6-3.1 8.1-7 10-3.9-1.9-7-5.4-7-10V5.5l7-2.8Z"/><path d="m8.7 11.8 2.2 2.2 4.5-4.7"/></svg>
+        </span>
+        <span>SpamSentry</span>
+      </a>
+      <div class="topbar-right"><span class="service-status"><i></i> Classifier online</span><a class="docs-link" href="/docs" target="_blank" rel="noreferrer">API docs <span aria-hidden="true">↗</span></a></div>
     </header>
 
     <main>
-      <section class="hero" aria-labelledby="page-title">
-        <div class="eyebrow"><span class="status-dot"></span> MACHINE LEARNING DEMO</div>
-        <h1 id="page-title">Know what’s in your inbox.</h1>
-        <p class="intro">Paste a message below to check whether it looks like spam. Your text is analyzed for this result and isn’t saved by the app.</p>
+      <div class="breadcrumb"><span>Security</span><span aria-hidden="true">/</span><strong>Message scan</strong></div>
+      <section class="page-heading">
+        <div><p class="eyebrow">MESSAGE SECURITY</p><h1>Message scan</h1><p class="intro">Review a message for suspicious patterns before it reaches your inbox.</p></div>
+        <div class="model-chip"><span class="model-icon">✦</span><span><strong>AI-assisted analysis</strong><small>TF-IDF · Naive Bayes</small></span></div>
+      </section>
 
-        <form id="check-form" class="checker" novalidate>
-          <label for="message">Message text</label>
+      <section class="dashboard-grid" aria-label="Spam analysis dashboard">
+        <form id="check-form" class="panel compose-panel" novalidate>
+          <div class="panel-heading"><div><span class="step-label">01 · INPUT</span><h2>Message to review</h2></div><span class="input-tag">TEXT</span></div>
+          <label class="sr-only" for="message">Paste message text</label>
           <textarea id="message" name="message" maxlength="12000" placeholder="Paste a text message or email excerpt here…" required></textarea>
-          <div class="form-meta"><span id="char-count">0 / 12,000</span><span>Try a sample:</span></div>
+          <div class="input-footer"><span id="char-count">0 / 12,000</span><span>Message is analyzed without saving it.</span></div>
+          <div class="sample-heading"><span>QUICK SAMPLES</span><span>Choose one to try</span></div>
           <div class="samples">
-            <button type="button" class="sample" data-sample="Hey, are we still meeting for lunch today?">Everyday message</button>
-            <button type="button" class="sample" data-sample="Congratulations! You have won a prize. Claim it now by clicking this link and paying a small processing fee.">Suspicious offer</button>
+            <button type="button" class="sample" data-sample="Hey, are we still meeting for lunch today?"><span class="sample-icon normal-icon">↗</span><span><strong>Everyday note</strong><small>Meeting up later today</small></span><span class="sample-arrow">›</span></button>
+            <button type="button" class="sample" data-sample="Congratulations! You have won a prize. Claim it now by clicking this link and paying a small processing fee."><span class="sample-icon suspicious-icon">!</span><span><strong>Prize notification</strong><small>Unexpected offer and fee</small></span><span class="sample-arrow">›</span></button>
           </div>
-          <button id="submit-button" class="submit" type="submit"><span>Check message</span><span aria-hidden="true">→</span></button>
+          <button id="submit-button" class="submit" type="submit"><span>Analyze message</span><span class="submit-arrow" aria-hidden="true">→</span></button>
         </form>
 
-        <section id="result" class="result" aria-live="polite" hidden></section>
-        <p class="disclaimer">This is an educational demo trained on the UCI SMS Spam Collection. It can make mistakes and should not be used as the only basis for filtering important messages.</p>
+        <section id="result" class="panel verdict-panel" aria-live="polite" aria-atomic="true">
+          <div class="panel-heading"><div><span class="step-label">02 · ANALYSIS</span><h2>Security verdict</h2></div><span id="verdict-badge" class="verdict-badge neutral">Awaiting scan</span></div>
+          <div id="empty-state" class="empty-state"><div class="empty-illustration"><span class="empty-orbit orbit-one"></span><span class="empty-orbit orbit-two"></span><span class="empty-shield">✓</span></div><h3>Ready when you are</h3><p>Paste a message and select <strong>Analyze message</strong> to see the result here.</p></div>
+          <div id="loading-state" class="loading-state" hidden><span class="spinner"></span><strong>Reviewing message</strong><p>Comparing its text patterns with known examples.</p></div>
+          <div id="outcome" class="outcome" hidden>
+            <div class="verdict-summary"><span id="result-icon" class="result-icon">✓</span><div><p class="result-kicker">CLASSIFIER RESULT</p><h3 id="verdict-title">Message looks normal</h3><p id="verdict-description" class="result-description">No strong spam pattern was detected.</p></div></div>
+            <div class="preview-block"><div class="preview-label"><span>MESSAGE PREVIEW</span><span id="preview-length">0 characters</span></div><blockquote id="preview-message"></blockquote></div>
+            <div class="risk-block"><div class="risk-label"><span>Estimated spam probability</span><strong id="spam-score">0%</strong></div><div class="meter"><span id="risk-meter"></span></div><p>This score is an estimate from the model, not a guarantee.</p></div>
+          </div>
+          <div id="error-state" class="error-state" hidden></div>
+          <div class="verdict-footer"><span class="privacy-lock">⌑</span> Your text is not stored by this app.</div>
+        </section>
       </section>
 
-      <section class="about" aria-label="About the model">
-        <div><span class="about-icon">01</span><h2>Text features</h2><p>TF-IDF converts message words and phrases into numeric features.</p></div>
-        <div><span class="about-icon">02</span><h2>Spam classifier</h2><p>A Multinomial Naive Bayes model estimates whether the text resembles spam.</p></div>
-        <div><span class="about-icon">03</span><h2>Clear result</h2><p>See the prediction and the model’s estimated spam probability.</p></div>
-      </section>
+      <section class="how-panel"><div class="how-title"><span>HOW IT WORKS</span><h2>A quick, transparent check</h2></div><div class="steps"><article><span>1</span><div><h3>Text features</h3><p>TF-IDF represents words and phrases as numeric signals.</p></div></article><article><span>2</span><div><h3>Spam classifier</h3><p>Naive Bayes compares those signals to labeled examples.</p></div></article><article><span>3</span><div><h3>Review the result</h3><p>See the classification and estimated spam probability.</p></div></article></div></section>
+      <p class="disclaimer">SpamSentry is an educational demo trained on the UCI SMS Spam Collection. Results may be less reliable for long or formatted emails. Always use your judgment.</p>
     </main>
 
-    <footer><span>SpamSentry</span><span>Built with FastAPI and scikit-learn</span></footer>
+    <footer><a class="brand footer-brand" href="/"><span class="brand-mark" aria-hidden="true">S</span><span>SpamSentry</span></a><span>Message analysis · FastAPI + scikit-learn</span></footer>
     <script src="/static/app.js" defer></script>
   </body>
 </html>
