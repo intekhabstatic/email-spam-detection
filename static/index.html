@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#101522" />
+    <meta name="description" content="Check message text for spam with SpamSentry, a machine-learning spam detection demo." />
+    <title>SpamSentry — Message Spam Checker</title>
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="SpamSentry home"><span class="brand-mark">S</span><span>SpamSentry</span></a>
+      <a class="api-link" href="/docs" target="_blank" rel="noreferrer">API docs <span aria-hidden="true">↗</span></a>
+    </header>
+
+    <main>
+      <section class="hero" aria-labelledby="page-title">
+        <div class="eyebrow"><span class="status-dot"></span> MACHINE LEARNING DEMO</div>
+        <h1 id="page-title">Know what’s in your inbox.</h1>
+        <p class="intro">Paste a message below to check whether it looks like spam. Your text is analyzed for this result and isn’t saved by the app.</p>
+
+        <form id="check-form" class="checker" novalidate>
+          <label for="message">Message text</label>
+          <textarea id="message" name="message" maxlength="12000" placeholder="Paste a text message or email excerpt here…" required></textarea>
+          <div class="form-meta"><span id="char-count">0 / 12,000</span><span>Try a sample:</span></div>
+          <div class="samples">
+            <button type="button" class="sample" data-sample="Hey, are we still meeting for lunch today?">Everyday message</button>
+            <button type="button" class="sample" data-sample="Congratulations! You have won a prize. Claim it now by clicking this link and paying a small processing fee.">Suspicious offer</button>
+          </div>
+          <button id="submit-button" class="submit" type="submit"><span>Check message</span><span aria-hidden="true">→</span></button>
+        </form>
+
+        <section id="result" class="result" aria-live="polite" hidden></section>
+        <p class="disclaimer">This is an educational demo trained on the UCI SMS Spam Collection. It can make mistakes and should not be used as the only basis for filtering important messages.</p>
+      </section>
+
+      <section class="about" aria-label="About the model">
+        <div><span class="about-icon">01</span><h2>Text features</h2><p>TF-IDF converts message words and phrases into numeric features.</p></div>
+        <div><span class="about-icon">02</span><h2>Spam classifier</h2><p>A Multinomial Naive Bayes model estimates whether the text resembles spam.</p></div>
+        <div><span class="about-icon">03</span><h2>Clear result</h2><p>See the prediction and the model’s estimated spam probability.</p></div>
+      </section>
+    </main>
+
+    <footer><span>SpamSentry</span><span>Built with FastAPI and scikit-learn</span></footer>
+    <script src="/static/app.js" defer></script>
+  </body>
+</html>
