@@ -1,6 +1,6 @@
-# SpamSentry
+# Spam Detention Project
 
-SpamSentry is a small full-stack spam-detection demo. Paste a message into the web app to receive a spam prediction and estimated spam probability. The interface is served by FastAPI, so the frontend and prediction API run together.
+Spam Detention Project is a full-stack message spam checker. Paste a message into the website to receive a prediction and estimated spam probability. FastAPI serves both the frontend and prediction API.
 
 **Live demo:** [email-spam-detection-aefr.onrender.com](https://email-spam-detection-aefr.onrender.com/)
 
@@ -53,3 +53,7 @@ This evaluates the classifier on a holdout split, then fits and saves the model 
 ## Deploy
 
 The app is containerized with Docker and deployed on Render. Pushes to the connected GitHub branch can trigger a new deployment.
+
+---
+
+Created by **Intekhab Alam** · [GitHub](https://github.com/intekhabstatic)
