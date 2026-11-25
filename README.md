@@ -2,6 +2,8 @@
 
 SpamSentry is a small full-stack spam-detection demo. Paste a message into the web app to receive a spam prediction and estimated spam probability. The interface is served by FastAPI, so the frontend and prediction API run together.
 
+**Live demo:** [email-spam-detection-aefr.onrender.com](https://email-spam-detection-aefr.onrender.com/)
+
 ## Features
 
 - Responsive message-checking interface with sample messages
@@ -50,4 +52,4 @@ This evaluates the classifier on a holdout split, then fits and saves the model 
 
 ## Deploy
 
-The repository includes a Dockerfile and `render.yaml` for Render. Connect the GitHub repository in Render using **New → Blueprint**, review the `email-spam-detection` web service, and deploy. Render will provide the public URL when the service is ready.
+The app is containerized with Docker and deployed on Render. Pushes to the connected GitHub branch can trigger a new deployment.
